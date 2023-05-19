@@ -2,7 +2,7 @@ from aiohttp import web
 import socketio
 import random
 
-
+# Create a Socket.IO server
 sio = socketio.AsyncServer()
 app = web.Application()
 sio.attach(app)
@@ -46,8 +46,15 @@ def disconnect(sid):
 
 @sio.event
 async def start(sid):
-    print("Game started for ", sid)
-    await sio.emit("guess", {"message": "Guess the number"}, room=sid)
+
+    if len(players) < 2:
+        print("Waiting for more players")
+        return
+    
+    for player in players:
+        await sio.emit("start", {"message": "Game Started"}, room=player)
+
+    await sio.emit("guess", {"message": "Guess a number between 1 and 20"})
 
 
 if __name__ == "__main__":
